@@ -6,31 +6,41 @@ pattern = re.compile('\d+')
 with open("day 5/input.txt") as f:
     lines = f.readlines()
     pos = int(np.where([pattern.search(line) is not None for line in lines])[0][0])
+
+    # Read the stack labels and positions
     stack_labels = pattern.findall(lines[pos])
+    stack_positions = [it.start() for it in pattern.finditer(lines[pos])]
+
+    # Initialise empty stacks
     stacks = {stack_label:[] for stack_label in stack_labels}
-    for i in range(pos-1, -1, -1):
-        for stack_label, stack_pos in zip(stack_labels, pattern.finditer(lines[pos])):
-            value = lines[i][stack_pos.start()]
-            if value != ' ':
-                stacks[stack_label].append(value)
-    print(stacks)
+
+    # Fill stacks
+    for line in reversed(lines[:pos]):
+        for stack_label, stack_pos in zip(stack_labels, stack_positions):
+            if line[stack_pos].isalpha():
+                stacks[stack_label].append(line[stack_pos])
+
     stacks2 = copy.deepcopy(stacks)
-    stacks3 = copy.deepcopy(stacks)
-    for i in range(pos+1, len(lines)):
-        if a := pattern.findall(lines[i]):
-            stacks3[a[2]].extend(stacks3[a[1]][-int(a[0]):])
-            del stacks3[a[1]][-int(a[0]):]
-            queue = []
-            for _ in range(int(a[0])):
-                if len(stacks[a[1]]):
-                    queue.append(stacks2[a[1]].pop())
-                    stacks[a[2]].append(stacks[a[1]].pop())
-            for _ in range(int(a[0])):
-                stacks2[a[2]].append(queue.pop())
+
+    # Iterate over remaining lines
+    for line in lines[pos+1:]:
+
+        # Follow instruction (if it exists)
+        if a := pattern.findall(line):
+
+            # Get no. of cranes to be moved
+            a0 = min(int(a[0]), len(stacks[a[1]])) 
+
+            # Crane mover 9001
+            stacks2[a[2]].extend(stacks2[a[1]][-a0:])
+            del stacks2[a[1]][-a0:]
+
+            # Crane mover 9000
+            for _ in range(a0):
+                stacks[a[2]].append(stacks[a[1]].pop())
 
     print(''.join([stacks[j].pop() for j in stacks]))
     print(''.join([stacks2[j].pop() for j in stacks]))
-    print(''.join([stacks3[j].pop() for j in stacks]))
 
 
 
