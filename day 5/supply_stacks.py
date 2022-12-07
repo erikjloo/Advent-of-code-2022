@@ -17,8 +17,8 @@ with open("day 5/input.txt") as f:
     # Fill stacks
     for line in reversed(lines[:pos]):
         for stack_label, stack_pos in zip(stack_labels, stack_positions):
-            if line[stack_pos].isalpha():
-                stacks[stack_label].append(line[stack_pos])
+            if (letter := line[stack_pos]).isalpha():
+                stacks[stack_label].append(letter)
 
     stacks2 = copy.deepcopy(stacks)
 
