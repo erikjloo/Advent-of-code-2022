@@ -41,6 +41,3 @@ with open("day 5/input.txt") as f:
 
     print(''.join([stacks[j].pop() for j in stacks]))
     print(''.join([stacks2[j].pop() for j in stacks]))
-
-
-
