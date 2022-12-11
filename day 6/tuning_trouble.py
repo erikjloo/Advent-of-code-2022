@@ -1,9 +1,11 @@
+# PART A and B: Find start index of set of unique chars 
+
 class SignalProcessor:
 
     packet_marker_length = 4
     message_marker_length = 14
 
-    def __init__(self, filename) -> None:
+    def __init__(self, filename : str) -> None:
         with open(filename) as f:
             self.signal = list(f.read().strip())
     
