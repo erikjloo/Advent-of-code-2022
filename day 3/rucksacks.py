@@ -2,7 +2,7 @@
 
 score = 0
 with open("day 3/input.txt") as f:
-    for line in f.readlines():
+    for line in f.read().splitlines():
         mid = len(line)//2
         c = set(line[:mid]).intersection(line[mid:]).pop()
         score += ord(c) - ord('a') + 1 if c.islower() else ord(c) - ord('A') + 27

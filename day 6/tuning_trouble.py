@@ -5,7 +5,7 @@ class SignalProcessor:
     packet_marker_length = 4
     message_marker_length = 14
 
-    def __init__(self, filename : str) -> None:
+    def __init__(self, filename: str) -> None:
         with open(filename) as f:
             self.signal = list(f.read().strip())
     
@@ -16,7 +16,7 @@ class SignalProcessor:
         a = self.start_of_packet()
         return self.convolve(a, self.message_marker_length)
 
-    def convolve(self, start : int, kernel_length : int) -> int:
+    def convolve(self, start: int, kernel_length: int) -> int:
         kernel = self.signal[start:start+kernel_length]
         if len(set(kernel)) == kernel_length:
             return start + kernel_length + 1
