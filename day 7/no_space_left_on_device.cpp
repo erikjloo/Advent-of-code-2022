@@ -24,7 +24,7 @@ private:
         Node* add_child(const std::string &newKey) {
             if (!children.count(newKey))
             {
-                Node* ptr = new Node(newKey, parent);
+                Node* ptr = new Node(newKey, this);
                 children.emplace(newKey, ptr); 
                 return ptr;
             }
@@ -34,7 +34,7 @@ private:
         Node* add_child(const std::string &newKey, const long &newData) {
             if (!children.count(newKey))
             {
-                Node *ptr = new Node(newKey, newData, parent);
+                Node *ptr = new Node(newKey, newData, this);
                 children.emplace(newKey, ptr);
                 return ptr;
             }
@@ -45,7 +45,7 @@ private:
     Node *root_;
     Node *pointer_;
     std::priority_queue<std::pair<long, std::string>> dirs;
-    std::unordered_map<std::string, long> dirs2;
+    // std::unordered_map<std::string, long> dirs2;
     std::vector<long> blaaaa;
 
 public:
@@ -57,6 +57,7 @@ public:
         if (dir == "/")
             pointer_ = root_;
         else if (dir == "..")
+            
             pointer_ = pointer_->parent;
         else
         {
@@ -74,28 +75,34 @@ public:
         long sum = 0;
         for (const auto& [filename, p]: ptr->children ) 
         {
-            if (filename == "hrznddsg")
-                std::cout <<  "oi" << std::endl;
+            // if (filename == "hrznddsg")
+                // std::cout <<  "oi" << std::endl;
 
-            long temp = dfs(p); // Sum of all files in dir
-            sum += temp;
-            if (p->data == 0) // file is a folder -> store its size
-            {
-                dirs2.emplace(filename, temp);
-                dirs.emplace(temp, filename);
-                blaaaa.push_back(temp);
-            }
+            sum += dfs(p); // Sum of all files in dir
+            // sum += temp;
+
+
         }
+        // if (ptr->data == 0) // file is a folder -> store its size
+        // {
+        ptr->data = sum;
+            // dirs2.emplace(filename, temp);
+            // dirs.emplace(sum, filename);
+        blaaaa.push_back(sum);
+        // }
         return sum;
     }
     long sum_of_dirs(long upper_limit) {
-        long top_dir = dfs(root_);
-        long sum = top_dir * (top_dir <= upper_limit);
+        // long top_dir = dfs(root_);
+        // long sum = top_dir * (top_dir <= upper_limit);
+        long sum = 0;
         // std::set<std::string> check;
         for (const auto &val : blaaaa)
             sum += val * (val <= upper_limit);
         //     // for (const auto &[name, val] : dirs2)
         //         // sum += val * (val <= upper_limit);
+        std::cout << sum << std::endl;
+        // sum = top_dir * (top_dir <= upper_limit);
         // while (!dirs.empty())
         // {
         //     const auto& [size, name] = dirs.top();
@@ -103,6 +110,8 @@ public:
         //     // std::cout << name << " of size  " << size << std::endl;
         //     dirs.pop();
         // }
+        // std::cout << sum << std::endl;
+
         return sum;
     }
     void read_dir(const char *filename)
@@ -117,8 +126,8 @@ public:
                 change_dir(c);
             // else if (b == "ls")
             //     continue;
-            // else if (a == "dir")
-                // add_child(b);
+            else if (a == "dir")
+                add_child(b);
             else if (std::isdigit(static_cast<unsigned char>(a[0])))
             {
                 // if (b == "tftmcrt")
@@ -138,8 +147,7 @@ public:
     {
         for (const auto &[filename, ptr] : ptr->children)
         {
-            long size = (ptr->data == 0)? dirs2.at(filename) : ptr-> data;
-            std::cout << gap << filename << " " << size << std::endl;
+            std::cout << gap << filename << " " << ptr->data << std::endl;
             print_(ptr, gap + "  |-");
         }
     }
