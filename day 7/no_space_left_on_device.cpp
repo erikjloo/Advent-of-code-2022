@@ -3,7 +3,7 @@
 #include <fstream>
 #include <set>
 #include <unordered_map>
-#include <queue>
+#include <vector>
 #include <cctype>
 
 class Tree
@@ -22,31 +22,17 @@ private:
         Node(const std::string &newKey, const long &newData, Node *newParent) : key(newKey), data(newData), parent(newParent) {}
         ~Node() {}
         Node* add_child(const std::string &newKey) {
-            if (!children.count(newKey))
-            {
-                Node* ptr = new Node(newKey, this);
-                children.emplace(newKey, ptr); 
-                return ptr;
-            }
-            else
-                return children.at(newKey);
+            children.emplace(newKey, new Node(newKey, this));
+            return children.at(newKey);
             }
         Node* add_child(const std::string &newKey, const long &newData) {
-            if (!children.count(newKey))
-            {
-                Node *ptr = new Node(newKey, newData, this);
-                children.emplace(newKey, ptr);
-                return ptr;
-            }
-            else
-                return children.at(newKey);
+            children.emplace(newKey, new Node(newKey, newData, this));
+            return children.at(newKey);
         }
     };
     Node *root_;
     Node *pointer_;
-    std::priority_queue<std::pair<long, std::string>> dirs;
-    // std::unordered_map<std::string, long> dirs2;
-    std::vector<long> blaaaa;
+    std::vector<long> dirs;
 
 public:
     Tree() : root_(new Node("/")), pointer_(root_) {}
@@ -57,63 +43,27 @@ public:
         if (dir == "/")
             pointer_ = root_;
         else if (dir == "..")
-            
             pointer_ = pointer_->parent;
         else
-        {
-            if (dir == "qjlvh")
-                std::cout << "FUCK" << std::endl;
             pointer_ = add_child(dir);
-            // pointer_ = pointer_->children.at(dir);
-        }
     }
-    // void go_to_child(const std::string &key) { pointer_ = pointer_->children.at(key); }
-    // void go_to_parent() { pointer_ = pointer_->parent; }
+
     long dfs(Node *ptr) {
-        if (ptr->children.empty()) // An empty dir or a file
+        // An empty dir or a file
+        if (ptr->children.empty()) 
             return ptr->data;
         long sum = 0;
+
+        // A directory with stuff
         for (const auto& [filename, p]: ptr->children ) 
-        {
-            // if (filename == "hrznddsg")
-                // std::cout <<  "oi" << std::endl;
-
             sum += dfs(p); // Sum of all files in dir
-            // sum += temp;
 
-
-        }
-        // if (ptr->data == 0) // file is a folder -> store its size
-        // {
+        // Update directory size
         ptr->data = sum;
-            // dirs2.emplace(filename, temp);
-            // dirs.emplace(sum, filename);
-        blaaaa.push_back(sum);
-        // }
+        dirs.push_back(sum);
         return sum;
     }
-    long sum_of_dirs(long upper_limit) {
-        // long top_dir = dfs(root_);
-        // long sum = top_dir * (top_dir <= upper_limit);
-        long sum = 0;
-        // std::set<std::string> check;
-        for (const auto &val : blaaaa)
-            sum += val * (val <= upper_limit);
-        //     // for (const auto &[name, val] : dirs2)
-        //         // sum += val * (val <= upper_limit);
-        std::cout << sum << std::endl;
-        // sum = top_dir * (top_dir <= upper_limit);
-        // while (!dirs.empty())
-        // {
-        //     const auto& [size, name] = dirs.top();
-        //     sum += size * (size <= upper_limit);
-        //     // std::cout << name << " of size  " << size << std::endl;
-        //     dirs.pop();
-        // }
-        // std::cout << sum << std::endl;
 
-        return sum;
-    }
     void read_dir(const char *filename)
     {
         std::ifstream file(filename);
@@ -124,31 +74,34 @@ public:
             ss >> a >> b >> c;
             if (b == "cd")
                 change_dir(c);
-            // else if (b == "ls")
-            //     continue;
             else if (a == "dir")
                 add_child(b);
             else if (std::isdigit(static_cast<unsigned char>(a[0])))
-            {
-                // if (b == "tftmcrt")
-                //     std::cout << "oi" << std::endl;
                 add_child(b, stol(a));
-            }
-            // else if (std::isdigit(static_cast<unsigned char>(a[0])))
-            // std::cout << a << " and " << b << " and " << c << std::endl;
         }
     }
+
+    long sum_of_dirs(long upper_limit)
+    {
+        long sum = 0;
+        for (const auto &val : dirs)
+            sum += val * (val <= upper_limit);
+        return sum;
+    }
+
     void print()
     {
         dfs(root_);
-        print_(root_, "");
+        print_(root_, "|");
     }
+
+private:
     void print_(Node* ptr, std::string gap)
     {
         for (const auto &[filename, ptr] : ptr->children)
         {
-            std::cout << gap << filename << " " << ptr->data << std::endl;
-            print_(ptr, gap + "  |-");
+            std::cout << gap << "-" << filename << " " << ptr->data << std::endl;
+            print_(ptr, gap + "  |");
         }
     }
 
@@ -160,5 +113,6 @@ int main()
     t.read_dir("input.txt");
     t.print();
     std::cout << t.sum_of_dirs(100000) << std::endl;
+    std::cout << t.smallest_dir(70000000, 30000000) << std::endl;
     return 0;
 }
