@@ -53,8 +53,12 @@ class Monkeys:
                 elif monkey.sign == "*":
                     item *= (monkey.param if monkey.param else item)
 
-                # Trick provided by dgeoffri
-                item -= (item // self.factor)*self.factor
+                # Trick provided by dgeoffri - removing ther product 
+                # of factors x times does not affect the divisibility
+                # test. E.g. if you remove x*factor_a*factor_b, dividing
+                # factor_b would yield the original result - x*factor_a.
+                # item -= (item // self.factor)*self.factor
+                item %= self.factor
                 condition = (item % monkey.factor) == 0
                 self.monkeys[monkey.dest[condition]].items.append(item)
 
