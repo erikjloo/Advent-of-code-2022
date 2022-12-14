@@ -6,7 +6,6 @@
 #include <vector>
 #include <algorithm>
 #include <cctype>
-#include <memory>
 
 class Tree
 {
