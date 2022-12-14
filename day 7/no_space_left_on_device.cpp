@@ -1,10 +1,12 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
-#include <set>
+// #include <set>
 #include <unordered_map>
 #include <vector>
+#include <algorithm>
 #include <cctype>
+#include <memory>
 
 class Tree
 {
@@ -20,7 +22,7 @@ private:
         Node(const std::string &newKey) : key(newKey), data(0), parent(this) {}
         Node(const std::string &newKey, Node *newParent) : key(newKey), data(0), parent(newParent) {}
         Node(const std::string &newKey, const long &newData, Node *newParent) : key(newKey), data(newData), parent(newParent) {}
-        ~Node() {}
+        ~Node() { std::cout << "destroying node " << key << std::endl; }
         Node* add_child(const std::string &newKey) {
             children.emplace(newKey, new Node(newKey, this));
             return children.at(newKey);
@@ -37,6 +39,17 @@ private:
 public:
     Tree() : root_(new Node("/")), pointer_(root_) {}
     Tree(const std::string &newKey) { root_ = new Node(newKey); }
+    ~Tree() { clear(root_); }
+    void clear(Node *ptr)
+    {
+        // An empty dir or a file
+        if (ptr->children.empty())
+            delete ptr;
+
+        // A directory with stuff
+        for (const auto &[filename, p] : ptr->children)
+            clear(p);
+    }
     Node* add_child(const std::string &newKey) { return pointer_->add_child(newKey); }
     Node* add_child(const std::string &newKey, const long &newData) { return pointer_->add_child(newKey, newData); }
     void change_dir(const std::string &dir) {
@@ -89,6 +102,16 @@ public:
         return sum;
     }
 
+    long smallest_dir(long total_size, long required_size)
+    {
+        long current_free = total_size - root_->data;
+        // std::cout << root_->data << std::endl;
+        std::sort(dirs.begin(), dirs.end(), std::less<long>());
+        for (const auto &val : dirs)
+            if ((current_free + val) > required_size)
+                return val;
+        return -1;
+    }
     void print()
     {
         dfs(root_);
