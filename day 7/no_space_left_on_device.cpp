@@ -21,7 +21,7 @@ private:
         Node(const std::string &newKey) : key(newKey), data(0), parent(this) {}
         Node(const std::string &newKey, Node *newParent) : key(newKey), data(0), parent(newParent) {}
         Node(const std::string &newKey, const long &newData, Node *newParent) : key(newKey), data(newData), parent(newParent) {}
-        ~Node() { std::cout << "destroying node " << key << std::endl; }
+        ~Node() {}
         Node* add_child(const std::string &newKey) {
             children.emplace(newKey, new Node(newKey, this));
             return children.at(newKey);
