@@ -1,18 +1,17 @@
-import Tree
-
 
 class Node:
-    def __init__(self, new_key : str = None, new_data : int = None):
+    def __init__(self, new_key: str = None, new_data: int = None, new_parent):
         self.key = new_key
         self.data = new_data
+        self.parent = new_parent
         self.children = []
 
 class Tree:
     def __init__(self):
-        self.root = None
-        self.pointer = 
+        self.root = Node("/")
+        self.pointer = self.root
     
-    def 
+    # def 
     
 
 def read_dir(filename : str) -> None:
