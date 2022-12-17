@@ -20,25 +20,24 @@ class DistressSignal:
         totes = 0
         for i, pair in enumerate(self.pairs):
             if DistressSignal.compare(pair[0], pair[1]):
-                # print("Left side smaller")
                 correct_order.append(i+1)
                 totes += i+1
-        print(correct_order)
+        # print(correct_order)
         return totes
 
     def part_b(self) -> int:
         self.packets = [[[2]], [[6]]]
-        # self.packets = []
-
         for line in self.lines:
             if len(line):
                 self.packets.append(json.loads(line))
-        self.indices = list(range(len(self.packets)))
-        DistressSignal.quick_sort(self.indices, self.packets, 0, len(self.packets)-1)
+        self.indices = DistressSignal.quick_sort(self.packets, 0, len(self.packets)-1)
         return (self.indices.index(0)+1)*(self.indices.index(1)+1)
 
     @staticmethod
-    def quick_sort(idx, ls, left: int, right: int) -> None:
+    def quick_sort(ls, left: int, right: int, idx: list = None) -> list[int]:
+
+        if idx is None:
+            idx = list(range(len(ls)))
 
         # Choose pivot
         p = random.randint(left, right)
@@ -64,10 +63,12 @@ class DistressSignal:
         idx[left], idx[i] = idx[i], idx[left]
 
         if (i != left): # quick_sort to left of pivot
-            DistressSignal.quick_sort(idx, ls, left, i-1)
+            DistressSignal.quick_sort(ls, left, i-1, idx)
 
         if (i != right): # quick_sort to right of pivot
-            DistressSignal.quick_sort(idx, ls, i+1, right)
+            DistressSignal.quick_sort(ls, i+1, right, idx)
+        
+        return idx
 
     @staticmethod
     def compare(a: Union[int, list], b: Union[int, list]) -> bool:
