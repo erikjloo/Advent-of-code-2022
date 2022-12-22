@@ -72,14 +72,14 @@ class DistressSignal:
 
     @staticmethod
     def compare(a: Union[int, list], b: Union[int, list]) -> bool:
-        if isinstance(a, int) and isinstance(b, int):
+        if type(a) is int and type(b) is int:
             # print("Compare {} vs {}".format(a,b))
             return a < b 
-        if isinstance(a, int) and isinstance(b, list):
+        if type(a) is int and type(b) is list:
             return DistressSignal.compare([a], b)
-        if isinstance(a, list) and isinstance(b, int):
+        if type(a) is list and type(b) is int:
             return DistressSignal.compare(a, [b])
-        if isinstance(a, list) and isinstance(b, list):
+        if type(a) is list and type(b) is list:
             # print("Compare {} vs {}".format(a,b))
             for i in range(max(len(a), len(b))):
                 if len(a) <= i: # a runs out of elements
