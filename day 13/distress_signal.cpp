@@ -61,7 +61,9 @@ public:
 
         Iterator(Node *ptr) : ptr_(ptr) {}
         Iterator() : ptr_(nullptr) {}
-        bool operator!=(const Iterator &itr) const { return ptr_ != itr.ptr_; }
+        bool operator==(const Iterator &itr) const { return ptr_ == itr.ptr_; }
+
+        // bool operator!=(const Iterator &itr) const { return ptr_ != itr.ptr_; }
         reference operator*() const { return *ptr_; }
         pointer operator->() { return ptr_; }
         Iterator &operator++()
@@ -85,15 +87,15 @@ public:
     List(const List &other) : List() { *this = other; }
     // ~List() { clear(); }
     List *parent() { return parent_; }
-    Iterator begin() { return Iterator(head_); }
-    Iterator end() { return Iterator(tail_); }
-    Node &front()
+    Iterator begin() const { return Iterator(head_); }
+    Iterator end() const { return Iterator(nullptr); }
+    Node &front() const
     {
         if (!head_)
             throw std::runtime_error("front on empty");
         return *head_;
     }
-    Node &back()
+    Node &back() const
     {
         if (!tail_)
             throw std::runtime_error("front on empty");
@@ -177,22 +179,22 @@ public:
     int size() const { return size_; }
     bool empty() const { return !head_; }
     // void clear() { while (head_) pop_back(); }
-    std::ostream &print(std::ostream &os) const;
-
 
     const std::string print() const
     {
         std::string out = "";
         auto tmp = head_;
-        while (tmp)
-        {
-            out += tmp->print() + ",";
-            tmp = tmp->next;
-        }
+        // while (tmp)
+        // {
+        //     out += tmp->print() + ",";
+        //     tmp = tmp->next;
+        // }
+        for (auto i = begin(); i != end(); ++i)
+            out += i->print() + ",";
         return out;
     }
 
-    friend std::ostream & operator<<(std::ostream &os, const List& l)
+    friend std::ostream &operator<<(std::ostream &os, const List &l)
     {
         os << l.print();
         return os;
@@ -211,31 +213,29 @@ public:
 
 class DistressSignal
 {
-
 public:
     DistressSignal(const char *filename)
     {
+        List l;
+        l.push_back(read_line("[[2]]"));
+        l.push_back(read_line("[[6]]"));
         std::ifstream file(filename);
         std::string line;
         while (file >> line)
-        {
-            read_line(line);
-        }
+            l.push_back(read_line(line));
     }
 
     List read_line(std::string line) const
     {
         List l;
-        List *prev = &l;
         List *curr = &l;
-        // return l;
+        List *prev = &l;
         std::regex re("(\\[|\\]|\\d+)");
         auto begin = std::sregex_iterator(line.begin(), line.end(), re);
         auto end = std::sregex_iterator();
         for (std::sregex_iterator i = begin; i != end; ++i)
         {
             std::string match = i->str();
-            // std::cout << match << std::endl;
             if (match == "[")
                 curr = curr->push_back(List());
             else if (match == "]")
