@@ -5,61 +5,38 @@
 #include <iterator>
 #include <algorithm>
 
-enum Type
-{
-    Int,
-    list
-};
-
 class List
 {
 private:
     class Node
     {
     public:
-        // void *contents;
-        int* int_ptr;
-        List* list_ptr;
+        int *int_ptr;
+        List *list_ptr;
         Node *prev;
         Node *next;
-        Type type;
 
     public:
-        Node() : list_ptr(nullptr), int_ptr(nullptr), prev(nullptr), next(nullptr), type(Type::list) {}
-        // Node() : contents(nullptr), prev(nullptr), next(nullptr), type(Type::list) {}
-        Node(int a) : int_ptr(new int{a}), list_ptr(nullptr), prev(nullptr), next(nullptr), type(Type::Int) {}
-        Node(const List &a) : int_ptr(nullptr), list_ptr(new List{a}), prev(nullptr), next(nullptr), type(Type::list) {}
-        // Node(int a) : contents(static_cast<void *>(new int{a})), prev(nullptr), next(nullptr), type(Type::Int) {}
-        // Node(const List &a) : contents(static_cast<void *>(new List{a})), prev(nullptr), next(nullptr), type(Type::list) {}
+        Node() : list_ptr(nullptr), int_ptr(nullptr), prev(nullptr), next(nullptr) {}
+        Node(int a) : int_ptr(new int{a}), list_ptr(nullptr), prev(nullptr), next(nullptr) {}
+        Node(const List &a) : int_ptr(nullptr), list_ptr(new List{a}), prev(nullptr), next(nullptr) {}
         std::string print() const { return (int_ptr)? std::to_string(*int_ptr) : "[" + list_ptr->print() + "]"; }
-        // std::string print() const
-        // {
-        //     if (type == Type::Int)
-        //         return std::to_string(*(static_cast<int *>(contents)));
-        //     else
-        //         return "[" + (static_cast<List *>(contents))->print() + "]";
-        // }
-
         ~Node()
         {
-            // delete int_ptr;
-            // delete list_ptr;
-            // delete ((int_ptr)? int_ptr : list_ptr);
-            if (int_ptr)
-                delete int_ptr;
-            else
-                delete list_ptr;
+            // if (list_ptr)
+            // {
+            //     std::cout << "Deleting" << *list_ptr << std::endl;
+            //     delete list_ptr;
+            //     list_ptr = nullptr;
+            //     return;
+            // }
+            // if (int_ptr)
+            // {
+            //     std::cout << "Deleting" << *int_ptr << std::endl;
+            //     delete int_ptr;
+            //     int_ptr = nullptr;
+            // }
         }
-        // ~Node()
-        // {
-        //     switch (type)
-        //     {
-        //     case Type::Int:
-        //         delete static_cast<int *>(contents);
-        //     default:
-        //         delete static_cast<List *>(contents);
-        //     }
-        // }
         bool operator<(const Node &node) const 
         {
             if (int_ptr && node.int_ptr)
@@ -94,15 +71,29 @@ public:
         Iterator &operator--() { ptr_ = ptr_->prev; return *this; }
         Iterator operator++(int) { auto tmp = *this; ptr_ = ptr_->next; return tmp; }
         Iterator operator--(int) { auto tmp = *this; ptr_ = ptr_->prev; return tmp; }
+        Iterator operator-(unsigned other)
+        {
+            Iterator k(ptr_);
+            for (size_t i = 0; i < other; ++i)
+                ++k;
+            return k;
+        }
+        unsigned operator-(Iterator other)
+        {
+            unsigned k = 0;
+            for (auto i = ptr_; i != other.ptr_; ++i)
+                ++k;
+            return k;
+        }
 
     private:
         Node *ptr_;
     };
 
 public:
-    List() : head_(nullptr), tail_(nullptr), size_(0) {}
-    // List(const List &other) : List() { *this = other; }
+    List() : parent_(this), head_(nullptr), tail_(nullptr), size_(0) {}
     List(const int &new_int) : List() { push_back(new_int); }
+    // List(const List &other) : List() { *this = other; }
     // List(const List &new_list) : List() { push_back(new_list); }
     List &operator=(const List &other)
     {
@@ -117,14 +108,10 @@ public:
         auto j = other.begin();
         for (size_t k = 0; k < std::max(size(), other.size()); ++k)
         {
-            if (!i)
-                return true;
-            if (!j)
-                return false;
-            if (*i < *j)
-                return true;
-            if (*j < *i)
-                return false;
+            if (!i) return true;
+            if (!j) return false;
+            if (*i < *j) return true;
+            if (*j < *i) return false;
             ++i;
             ++j;
         }
@@ -160,8 +147,8 @@ public:
         }
         else
         {
-            new_node->next = head_;
             head_->prev = new_node;
+            new_node->next = head_;
             head_ = new_node;
         }
         ++size_;
@@ -177,8 +164,8 @@ public:
         }
         else
         {
-            new_node->next = head_;
             head_->prev = new_node;
+            new_node->next = head_;
             head_ = new_node;
         }
         ++size_;
@@ -196,8 +183,8 @@ public:
         }
         else
         {
-            new_node->prev = tail_;
             tail_->next = new_node;
+            new_node->prev = tail_;
             tail_ = new_node;
         }
         ++size_;
@@ -213,8 +200,8 @@ public:
         }
         else
         {
-            new_node->prev = tail_;
             tail_->next = new_node;
+            new_node->prev = tail_;
             tail_ = new_node;
         }
         ++size_;
@@ -231,10 +218,13 @@ public:
             head_ = nullptr;
             tail_ = nullptr;
         }
-        else{
+        else
+        {
+            auto tmp = head_;
             head_ = head_->next;
-            delete head_->prev;
+            delete tmp;
             head_->prev = nullptr;
+            // tmp = nullptr;
         }
         --size_;
     }
@@ -244,15 +234,17 @@ public:
             throw std::runtime_error("pop_front() on empty List");
         if (!tail_->prev)
         {
-            delete tail_;
+            delete head_;
             head_ = nullptr;
             tail_ = nullptr;
         }
         else
         {
-            head_ = head_->next;
-            delete head_->prev;
-            head_->prev = nullptr;
+            auto tmp = tail_;
+            tail_ = tail_->prev;
+            delete tmp;
+            tail_->next = nullptr;
+            // tmp = nullptr;
         }
         --size_;
     }
@@ -287,7 +279,7 @@ public:
         std::string line;
         while (file >> line)
             l.push_back(read_line(line));
-        // std::sort(l.begin(), l.end());
+        std::sort(l.begin(), l.end());
         // auto a = std::find(l.begin(), l.end(), read_line("[[2]]"));
         // auto b = std::find(l.begin(), l.end(), read_line("[[6]]"));
         // std::cout << a << std::endl;
@@ -319,6 +311,6 @@ public:
 
 int main()
 {
-    DistressSignal ds("input.txt");
+    DistressSignal ds("simple.txt");
     return 1;
 }
