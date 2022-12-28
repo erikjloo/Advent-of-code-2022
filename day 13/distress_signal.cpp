@@ -63,7 +63,7 @@ public:
 
         Iterator() : ptr_(nullptr) {}
         Iterator(Node *ptr) : ptr_(ptr) {}
-        bool operator<=>(const Iterator &itr) const = default;
+        bool operator==(const Iterator &itr) const = default;
         reference operator*() const { return *ptr_; }
         pointer operator->() { return ptr_; }
         bool operator!() {return ptr_; }
