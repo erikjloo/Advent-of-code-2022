@@ -36,7 +36,7 @@ class Beacons:
     def part_b(self) -> None:
         start = time.time()
         for y in range(self.y_min, self.y_max+1):
-            if len(x:= self.x_coordinate_pairs(y)) > 1:
+            if len(x := self.x_coordinate_pairs(y)) > 1:
                 out = (x[0][1] + x[1][0])//2 *4000000 + y
                 end = time.time()
                 print("Part b: {} unoccupied positions.\n  Time: {} s".format(out, end - start))
@@ -66,6 +66,23 @@ class Beacons:
                 for x_pair in merged:
                     if x_pair[0] <= a <= x_pair[1]: # Merge if overlaping any range in merged
                         x_pair[1] = max(x_pair[1], b)
+                        break
+                else: # otherwise append new range to merged
+                    merged.append([a, b])
+            else:
+                merged.append([a, b])
+        return merged
+
+    def y_coordinate_pairs(self, x: int) -> list:
+        """ Returns list of y-coordinate pairs denoting the start and the end
+            of regions without beacons at the given x-coordinate """
+        y = [(ys-abs(dy), ys+abs(dy)) for xs, ys, d in self.diamonds if (dy := d-abs(xs-x)) > 0]
+        merged = []
+        for a, b in sorted(y): # Iterate over each sorted x-coordinate pair
+            if len(merged):
+                for y_pair in merged:
+                    if y_pair[0] <= a <= y_pair[1]: # Merge if overlaping any range in merged
+                        y_pair[1] = max(y_pair[1], b)
                         break
                 else: # otherwise append new range to merged
                     merged.append([a, b])
