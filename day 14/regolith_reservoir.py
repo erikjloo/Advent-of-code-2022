@@ -49,6 +49,10 @@ class Reservoir:
 
     def drop_sand(self, part_a: bool = True) -> int:
         """ Drops sand units until sand falls of the edge """
+        for key in list(self.grid.keys()):
+            if self.grid[key] == Material.SAND:
+                del self.grid[key]   
+
         self.part_a = part_a
         counter: int = 0
         while self.drop_sand_unit():
@@ -86,5 +90,6 @@ class Reservoir:
 
 if __name__ == "__main__":
     r = Reservoir("day 14/input.txt")
+    print(r.drop_sand(part_a=True))
     print(r.drop_sand(part_a=False))
     # r.print()
