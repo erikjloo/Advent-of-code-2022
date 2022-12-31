@@ -23,6 +23,7 @@ class Beacons:
                 self.x_max = max(self.x_max, xs)
                 self.y_min = min(self.y_max, ys)
                 self.y_max = max(self.y_max, ys)
+        self.diamonds.sort(key = lambda x: x[0] - x[2])
         end = time.time()
         print("Data read.\n  Time: {} s.".format(end-start))
 
@@ -48,13 +49,12 @@ class Beacons:
         # The region without beacons is defined by the inequality:
         #     |xs - x| + |ys - y| <= d
         # Rearranging:
-        #     x = xs ± |d - |ys - y|| if d - |ys - y| > 0 
+        #     x = xs ± (d - |ys - y|) if d - |ys - y| > 0 
         # Let dx = d - |ys - y|:
-        #     x = xs ± |dx| if dx > 0
+        #     x = xs ± dx if dx > 0
         # We store the left and right x in a list of pairs:
         #     [(x_left, x_right)]
-        x = [(xs-abs(dx), xs+abs(dx)) for xs, ys, d in self.diamonds if (dx := d-abs(ys-y)) > 0]
-
+        x = [(xs-dx, xs+dx) for xs, ys, d in self.diamonds if (dx := d-abs(ys-y)) > 0]
         # Merge overlaping x-coordinate pairs.
         # (1) Sort x by the x_left and iterate over each sorted x-coordinate pair.
         # (2) Check if the current x_left is within previous [x_left, x_right]
