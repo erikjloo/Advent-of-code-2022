@@ -70,19 +70,19 @@ class Reservoir:
                 return False
             elif not self.part_a and y == (self.bedrock-1):
                 self.grid[(x, y)] = Material.SAND
-                self.update_bounds(x, y)
+                self.update_bounds(x, y) # for printing
                 return True
-            elif not (x, y+1) in self.grid: # Check below
+            elif (x, y+1) not in self.grid: # Check below
                 y += 1
-            elif not (x-1, y+1) in self.grid: # Check left
+            elif (x-1, y+1) not in self.grid: # Check left
                 x -= 1
                 y += 1
-            elif not (x+1, y+1) in self.grid: # Check right
+            elif (x+1, y+1) not in self.grid: # Check right
                 x += 1
                 y += 1
             else: # All checks fail -> Sand has settled
                 self.grid[(x, y)] = Material.SAND
-                self.update_bounds(x, y)
+                self.update_bounds(x, y) # for printing
                 return not (x == x0 and y == y0) #x != x0 or y != y0
 
     def print(self) -> None:

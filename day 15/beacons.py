@@ -2,9 +2,6 @@ import re
 import math
 import time
 
-def clamp(x : int, x_min : int, x_max : int) -> int:
-    return min(max(x, x_min), x_max)
-
 class Beacons:
 
     def __init__(self, filename) -> None:
@@ -30,24 +27,24 @@ class Beacons:
         end = time.time()
         print("Data read.\n  Time: {} s.".format(end-start))
 
+    def clamp(self, y) -> int:
+        return min(max(y, self.y_min), self.y_max)
+
     def find_intersects(self) -> list:
         y = set()
         for i, (xs1, ys, d) in enumerate(self.diamonds):
             yt1, yb1 = (ys + d + 1), (ys - d - 1)
-            xl1, xr1 = (xs1 + d + 1), (xs1 - d - 1)
-
             for xs2, ys, d in self.diamonds[i+1:]:
                 yt2, yb2 = (ys + d + 1), (ys - d - 1)
-                xl2, xr2 = (xs2 + d + 1), (xs2 - d - 1)
                 dx = abs(xs2 - xs1)
-                y.add((yb1 + yt2 + dx)//2)
-                y.add((yb1 + yt2 - dx)//2)
-                y.add((yb2 + yt1 + dx)//2)
-                y.add((yb2 + yt1 - dx)//2)
-                y.add((yt1 + yt2 + dx)//2)
-                y.add((yt1 + yt2 - dx)//2)
-                y.add((yb1 + yb2 + dx)//2)
-                y.add((yb1 + yb2 - dx)//2)
+                y.add(self.clamp((yb1 + yt2 + dx)//2))
+                y.add(self.clamp((yb1 + yt2 - dx)//2))
+                y.add(self.clamp((yb2 + yt1 + dx)//2))
+                y.add(self.clamp((yb2 + yt1 - dx)//2))
+                y.add(self.clamp((yt1 + yt2 + dx)//2))
+                y.add(self.clamp((yt1 + yt2 - dx)//2))
+                y.add(self.clamp((yb1 + yb2 + dx)//2))
+                y.add(self.clamp((yb1 + yb2 - dx)//2))
         return y
 
     def part_a(self, y: int) -> None:
@@ -59,10 +56,7 @@ class Beacons:
 
     def part_b(self) -> None:
         start = time.time()
-        # for y in range(self.y_min, self.y_max+1):
         for y in self.find_intersects():
-            if y < self.y_min or y > self.y_max:
-                continue
             if len(x := self.x_coordinate_pairs(y)) > 1:
                 out = (x[0][1] + x[1][0])//2 *4000000 + y
                 end = time.time()
@@ -117,9 +111,9 @@ class Beacons:
         return merged
 
 if __name__ == "__main__":
-    # b = Beacons("day 15/simple.txt")
-    # b.part_a(10)
-    # b.part_b()
+    b = Beacons("day 15/simple.txt")
+    b.part_a(10)
+    b.part_b()
     b = Beacons("day 15/input.txt")
     b.part_a(2000000)
     b.part_b()
