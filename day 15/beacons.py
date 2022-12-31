@@ -8,10 +8,8 @@ class Beacons:
         start = time.time()
         pattern = re.compile("-?\d+")
         self.diamonds = list()
-        self.x_min = math.inf
-        self.x_max = -math.inf
-        self.y_min = math.inf
-        self.y_max = -math.inf
+        self.x_min, self.y_min = math.inf, math.inf
+        self.x_max, self.y_max = -math.inf, -math.inf
         with open(filename) as f:
             for line in f.read().splitlines():
                 sensor, beacon = line.split(":")
@@ -86,23 +84,6 @@ class Beacons:
                 for x_pair in merged:
                     if x_pair[0] <= a <= x_pair[1]: # Merge if overlaping any range in merged
                         x_pair[1] = max(x_pair[1], b)
-                        break
-                else: # otherwise append new range to merged
-                    merged.append([a, b])
-            else:
-                merged.append([a, b])
-        return merged
-
-    def y_coordinate_pairs(self, x: int) -> list:
-        """ Returns list of y-coordinate pairs denoting the start and the end
-            of regions without beacons at the given x-coordinate """
-        y = [(ys-abs(dy), ys+abs(dy)) for xs, ys, d in self.diamonds if (dy := d-abs(xs-x)) > 0]
-        merged = []
-        for a, b in sorted(y): # Iterate over each sorted x-coordinate pair
-            if len(merged):
-                for y_pair in merged:
-                    if y_pair[0] <= a <= y_pair[1]: # Merge if overlaping any range in merged
-                        y_pair[1] = max(y_pair[1], b)
                         break
                 else: # otherwise append new range to merged
                     merged.append([a, b])
