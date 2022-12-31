@@ -1,6 +1,7 @@
 from enum import Enum
 import numpy as np
 import math
+import time
 
 class Material(Enum):
     STONE = 1
@@ -24,9 +25,7 @@ class Reservoir:
 
     def read_coord(self, coord: str) -> tuple:
         """ Reads the coordinate AND updates the the bounds """
-        x, y = coord.split(",")
-        x = int(x.strip())
-        y = int(y.strip())
+        x, y = [int(x.strip()) for x in coord.split(",")]
         self.update_bounds(x, y)
         return (x, y)
 
@@ -49,6 +48,7 @@ class Reservoir:
 
     def drop_sand(self, part_a: bool = True) -> int:
         """ Drops sand units until sand falls of the edge """
+        start = time.time()
         for key in list(self.grid.keys()):
             if self.grid[key] == Material.SAND:
                 del self.grid[key]   
@@ -57,29 +57,33 @@ class Reservoir:
         counter: int = 0
         while self.drop_sand_unit():
             counter +=1
+        end = time.time()
+        print("Time: {} s.".format(end-start))
         return counter + (not self.part_a)
 
-    def drop_sand_unit(self, start: tuple = (500, 0)) -> bool:
+    def drop_sand_unit(self, x0: int = 500, y0: int = 0) -> bool:
         """ Drops a unit of sand until it (a) falls thru or (b) settles down 
             Returns true if more sand can be poured """
-        c = np.array(start)
+        x, y = x0, y0
         while True:
-            if self.part_a and c[1] > self.max_y: # Check if falling thru max_y
+            if self.part_a and y > self.max_y: # Check if falling thru max_y
                 return False
-            elif not self.part_a and c[1] == (self.bedrock-1):
-                self.grid[tuple(c)] = Material.SAND
-                self.update_bounds(c[0], c[1])
+            elif not self.part_a and y == (self.bedrock-1):
+                self.grid[(x, y)] = Material.SAND
+                self.update_bounds(x, y)
                 return True
-            elif not tuple(c + np.array([0, 1])) in self.grid: # Check below
-                c += np.array([0, 1])
-            elif not tuple(c + np.array([-1, 1])) in self.grid: # Check left
-                c += np.array([-1, 1])
-            elif not tuple(c + np.array([1, 1])) in self.grid: # Check right
-                c += np.array([1, 1])
+            elif not (x, y+1) in self.grid: # Check below
+                y += 1
+            elif not (x-1, y+1) in self.grid: # Check left
+                x -= 1
+                y += 1
+            elif not (x+1, y+1) in self.grid: # Check right
+                x += 1
+                y += 1
             else: # All checks fail -> Sand has settled
-                self.grid[tuple(c)] = Material.SAND
-                self.update_bounds(c[0], c[1])
-                return np.any(c != np.array(start))
+                self.grid[(x, y)] = Material.SAND
+                self.update_bounds(x, y)
+                return not (x == x0 and y == y0) #x != x0 or y != y0
 
     def print(self) -> None:
         grid = [["." for _ in range(self.max_x - self.min_x+1)] for _ in range(self.max_y - self.min_y+1)]

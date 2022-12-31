@@ -27,6 +27,25 @@ class Beacons:
         end = time.time()
         print("Data read.\n  Time: {} s.".format(end-start))
 
+    def find_intersects(self) -> list:
+        y = set()
+        for xs, ys, d in self.diamonds:
+            yt1, yb1 = (ys + d + 1), (ys - d - 1)
+            xl1, xr1 = (xs + d + 1), (xs - d - 1)
+            for x, ys, d in self.diamonds:
+                yt2, yb2 = (ys + d + 1), (ys - d - 1)
+                xl1, xr1 = (xs + d + 1), (xs - d - 1)
+
+                if yt1 >= yt2 >= yb1 and yb1 >= yb2:
+                    y.add((yb1 + yt2)//2 - 1)
+                    y.add((yb1 + yt2)//2)
+                    y.add((yb1 + yt2)//2 + 1)
+                elif yt2 >= yt1 >= yb2 and yb2 >= yb1:
+                    y.add((yb2 + yt1)//2 - 1)
+                    y.add((yb2 + yt1)//2)
+                    y.add((yb2 + yt1)//2 + 1)
+        return y
+
     def part_a(self, y: int) -> None:
         """ Returns the number of positions without beacons at the given y-coordinate """
         start = time.time()
@@ -36,7 +55,8 @@ class Beacons:
 
     def part_b(self) -> None:
         start = time.time()
-        for y in range(self.y_min, self.y_max+1):
+        # for y in range(self.y_min, self.y_max+1):
+        for y in self.find_intersects():
             if len(x := self.x_coordinate_pairs(y)) > 1:
                 out = (x[0][1] + x[1][0])//2 *4000000 + y
                 end = time.time()
